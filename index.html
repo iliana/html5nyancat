@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<style type="text/css">
+		html, body, #catoutwrap, #coveroutwrap, #rboutwrap { width: 100%; height: 100%; }
+		body { padding: 0; margin: 0; background-color: black /*#036*/; font-size: 8pt; }
+		noscript { font-size: 16pt; margin-top: 5em; text-align: center; color: white }
+		#cat, #cover, #rainbow { display: none }
+		#catoutwrap { position: absolute; top: 0; left: 0; display: table; z-index: 10 }
+		#catinwrap { width: 100%; display: table-cell; vertical-align: middle; }
+		#cat { width: 34em; height: 21em; margin: 0 auto; }
+		#cat > object { height: 21em; width: 34em; }
+		#coveroutwrap { position: absolute; top: 0; left: 0; display: table; z-index: 1 }
+		#coverinwrap { width: 100%; display: table-cell; vertical-align: middle }
+		#cover { width: 34em; height: 21em; margin: 0 auto; position: relative; }
+		#cover > div { background-color: #036; }
+		#cover1 { height: 3em; width: 27em; position: absolute; top: 18em; left: 7em; }
+		#cover2 { height: 3em; width: 25em; position: absolute; top: 0em; left: 9em; }
+		#rboutwrap { position: absolute; top: 0; left: 0; display: table; z-index: 0 }
+		#rbinwrap { width: 50%; display: table-cell; vertical-align: middle  }
+		#rainbow { z-index: 0; width: 50%; height: 21em; position: relative }
+		.rb { height: 18em; padding: 1em 0 2em; width: 8em; position: absolute }
+		#rb01 { right: 0 }
+		#rb02 { right: 8em }
+		#rb03 { right: 16em }
+		.rb.alt { padding: 2em 0 1em }
+		.rb > div { height: 3em; width: 100%; }
+		.red { background-color: #f00; }
+		.ora { background-color: #f90; }
+		.yel { background-color: #ff0; }
+		.gre { background-color: #3f0; }
+		.blu { background-color: #09f; }
+		.pur { background-color: #63f; }
+	</style>
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+</head>
+<body>
+	<noscript>This nyan cat requires JavaScript to be enabled.</noscript>
+	<audio id="intro" src="intro.ogg"></audio>
+	<audio id="loop" src="loop.ogg" preload="auto"></audio>
+	<div id="catoutwrap">
+		<div id="catinwrap">
+			<div id="cat">
+				<object id="nyan1" type="image/svg+xml" data="nyan1.svg"></object>
+				<object id="nyan2" type="image/svg+xml" data="nyan2.svg"></object>
+				<object id="nyan3" type="image/svg+xml" data="nyan3.svg"></object>
+				<object id="nyan4" type="image/svg+xml" data="nyan4.svg"></object>
+				<object id="nyan5" type="image/svg+xml" data="nyan5.svg"></object>
+				<object id="nyan6" type="image/svg+xml" data="nyan6.svg"></object>
+			</div>
+		</div>
+	</div>
+	<div id="coveroutwrap">
+		<div id="coverinwrap">
+			<div id="cover">
+				<div id="cover1"></div>
+				<div id="cover2"></div>
+			</div>
+		</div>
+	</div>
+	<div id="rboutwrap">
+		<div id="rbinwrap">
+			<div id="rainbow">
+				<div class="rb">
+					<div class="red"></div>
+					<div class="ora"></div>
+					<div class="yel"></div>
+					<div class="gre"></div>
+					<div class="blu"></div>
+					<div class="pur"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+	var nyanInterval;
+	var rainbowInterval;
+	var updateFreq = 70;
+
+	function rotateNyan()
+	{
+		oldNyan = $('#cat>object:visible');
+		if (oldNyan.next().length)
+		{
+			newNyan = oldNyan.next();
+		}
+		else
+		{
+			newNyan = $('#cat>object').eq(0);
+		}
+
+		newNyan.show();
+		oldNyan.hide();
+	}
+
+	function rotateRainbow()
+	{
+		rainbows = $('.rb');
+		for (var i = 0; i < rainbows.length; i++)
+		{
+			rainbow = rainbows.eq(i);
+			if (rainbow.hasClass('alt'))
+			{
+				rainbow.removeClass('alt');
+			}
+			else
+			{
+				rainbow.addClass('alt');
+			}
+		}
+	}
+
+	function setUpNyan()
+	{
+		$('body').css('background-color', '#036');
+		$('#cat').show();
+		$('#cover').show();
+		$('#rainbow').show();
+
+		nyan = $('#cat>object');
+		nyan.hide();
+		nyan.eq(0).show();
+
+		for (var i = 1; i < 20; i++)
+		{
+			$('.rb').eq(0).clone().appendTo('#rainbow');
+		}
+
+		rainbows = $('.rb');
+		for (var i = 0; i < rainbows.length; i++)
+		{
+			rainbow = rainbows.eq(i);
+			rainbow.css('right', i * 8 + 'em');
+
+			if (i % 2 == 1)
+			{
+				rainbow.addClass('alt');
+			}
+		}
+
+		nyanInterval = window.setInterval(rotateNyan, updateFreq);
+		rainbowInterval = window.setInterval(rotateRainbow, updateFreq*2);
+	}
+
+	function playNyan()
+	{
+		setUpNyan();
+		$('#loop').trigger('play');
+		// Detect if we're using a browser that doesn't support loop
+		// Ex: Firefox without BMO 449157 fixed
+		if ((typeof $('#loop')[0].loop) == "boolean")
+		{
+			$('#loop')[0].loop = true;
+		} else {
+			$('#loop').bind('ended', function () { console.log('asldfj'); $('#loop').trigger('play'); });
+		}
+	}
+
+	$(document).ready(function()
+	{
+		$('#intro').trigger('play');
+		$('#intro').bind('ended', playNyan);
+	});
+	</script>
+</body>
+</html>
